@@ -4,7 +4,6 @@ const path = require('path');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { checkPasscode, requireSession } = require('./auth');
-const { computeTotals } = require('./calc');
 const { createEstimate } = require('./zoho/estimates');
 const { createZohoClient } = require('./zoho/client');
 
@@ -32,6 +31,7 @@ function createApp(deps) {
     if (!ok) return res.status(401).json({ error: 'Invalid passcode' });
     res.cookie('session', 'ok', {
       httpOnly: true, sameSite: 'lax', signed: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 12 * 60 * 60 * 1000,
     });
     res.json({ ok: true });
@@ -40,9 +40,6 @@ function createApp(deps) {
   app.post('/api/quote', requireSession, async (req, res) => {
     const details = validateQuote(req.body);
     if (details) return res.status(400).json({ error: 'Validation failed', details });
-
-    // recompute totals server-side (display parity; Zoho is authoritative)
-    computeTotals(req.body.lineItems, 0.15);
 
     try {
       const result = await createEstimateImpl(deps.zohoClient, req.body, deps.gctTaxId);
