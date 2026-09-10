@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "commonjs",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node server/index.js",
     "test": "jest"
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "dotenv": "^16.6.1",
     "express": "^4.19.2"
   },
   "devDependencies": {
