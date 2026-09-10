@@ -36,6 +36,18 @@ describe('findOrCreateContact', () => {
     const create = client.calls.find((c) => c.method === 'POST');
     expect(create.body.contact_name).toBe('Home Owner');
   });
+
+  test('falls through to name search when email misses, no create', async () => {
+    const client = makeClient({
+      'GET /contacts': ({ path }) =>
+        path.includes('email=')
+          ? { contacts: [] }
+          : { contacts: [{ contact_id: 'C3' }] },
+    });
+    const id = await findOrCreateContact(client, customer);
+    expect(id).toBe('C3');
+    expect(client.calls.some((c) => c.method === 'POST')).toBe(false);
+  });
 });
 
 describe('createEstimate', () => {
@@ -49,13 +61,18 @@ describe('createEstimate', () => {
   test('finds contact then creates estimate as draft', async () => {
     const client = makeClient({
       'GET /contacts': () => ({ contacts: [{ contact_id: 'C1' }] }),
-      'POST /estimates': ({ body }) => {
-        expect(body.customer_id).toBe('C1');
-        expect(body.line_items[0].tax_id).toBe('TAX-15');
-        return { estimate: { estimate_id: 'E9', estimate_number: 'EST-000009' } };
-      },
+      'POST /estimates': () => ({
+        estimate: { estimate_id: 'E9', estimate_number: 'EST-000009' },
+      }),
     });
     const res = await createEstimate(client, form, 'TAX-15');
     expect(res).toEqual({ estimateId: 'E9', estimateNumber: 'EST-000009' });
+
+    const post = client.calls.find(
+      (c) => c.method === 'POST' && c.path === '/estimates'
+    );
+    expect(post).toBeDefined();
+    expect(post.body.customer_id).toBe('C1');
+    expect(post.body.line_items[0].tax_id).toBe('TAX-15');
   });
 });
