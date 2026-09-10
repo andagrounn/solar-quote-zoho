@@ -49,13 +49,11 @@ solar-quote-zoho/
       contacts.js       # find-or-create contact
       estimates.js      # create estimate
       payload.js        # PURE: build Zoho estimate payload from form data
-    calc.js             # PURE: line totals, subtotal, GCT, grand total
   public/
     index.html          # the sales-rep quotation form
     app.js              # form logic, row add/remove, live totals
     styles.css          # branded layout mirroring the sample
   test/
-    calc.test.js
     payload.test.js
     estimates.test.js   # mocked Zoho client
   .env.example
@@ -73,9 +71,10 @@ rep (passcode) and is the only place Zoho credentials exist.
    httpOnly session cookie.
 2. Rep fills header, customer block, line items, terms. `app.js` computes row
    totals, subtotal, GCT (15%), and grand total live in the browser (display
-   only — server recomputes authoritatively).
+   only — Zoho Books computes tax and totals authoritatively from the submitted
+   line items and the configured GCT `tax_id`).
 3. Rep clicks **Create in Zoho** → `POST /api/quote` with the full form JSON.
-4. Server validates required fields, recomputes totals, then:
+4. Server validates required fields, then:
    a. `contacts.js` searches Zoho for the customer (by email, else name); if
       absent, creates a contact.
    b. `payload.js` builds the estimate payload (line items, GCT `tax_id`,
@@ -168,8 +167,6 @@ ZOHO_CURRENCY=USD
 
 ## 9. Testing
 
-- `calc.test.js` — row totals, subtotal, GCT 15%, grand total; rounding edge
-  cases; empty/zero rows.
 - `payload.test.js` — form JSON → Zoho estimate payload mapping, including
   tax_id attachment, notes assembly from terms, reference/estimate numbers.
 - `estimates.test.js` — create-quote flow with a **mocked** Zoho client:

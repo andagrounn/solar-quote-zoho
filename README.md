@@ -13,6 +13,8 @@ in Zoho Books. Shared passcode; no per-rep logins; no database.
    - `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`, `ZOHO_REFRESH_TOKEN`
    - `ZOHO_ORG_ID` — Zoho Books organization id
    - `ZOHO_GCT_TAX_ID` — the `tax_id` of your 15% GCT tax in Zoho Books
+   - `PORT` — *(optional, default 3000)* port the server listens on
+   - `ZOHO_CURRENCY` — *(optional, default USD; informational)* the estimate inherits the Zoho org/contact currency
 3. `npm start` → open `http://localhost:3000`
 
 ## Finding your GCT tax_id

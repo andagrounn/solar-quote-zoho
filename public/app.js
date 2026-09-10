@@ -99,8 +99,20 @@ $('createBtn').addEventListener('click', async () => {
   result.textContent = 'Creating…';
   const { status, data } = await post('/api/quote', payload);
   if (status === 200) {
-    result.innerHTML = `Created estimate ${data.estimateNumber}. <a href="${data.url}" target="_blank" rel="noopener">Open in Zoho</a>`;
+    result.textContent = `Created estimate ${data.estimateNumber}. `;
+    if (typeof data.url === 'string' && data.url.startsWith('https://')) {
+      const a = document.createElement('a');
+      a.href = data.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = 'Open in Zoho';
+      result.appendChild(a);
+    }
   } else {
-    result.innerHTML = `<span class="error">Error: ${JSON.stringify(data.details || data.error)}</span>`;
+    result.textContent = '';
+    const span = document.createElement('span');
+    span.className = 'error';
+    span.textContent = 'Error: ' + JSON.stringify(data.details || data.error);
+    result.appendChild(span);
   }
 });
