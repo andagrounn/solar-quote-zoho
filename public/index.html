@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solar Quotation</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <section id="login" class="card">
+    <h1>Sales Quotation</h1>
+    <label>Team passcode
+      <input id="passcode" type="password" autocomplete="off" />
+    </label>
+    <button id="loginBtn">Enter</button>
+    <p id="loginError" class="error" hidden></p>
+  </section>
+
+  <main id="app" hidden>
+    <header class="quote-head">
+      <div class="head-fields">
+        <label>Quotation #<input id="quotationNo" /></label>
+        <label>Inquiry #<input id="inquiryNo" /></label>
+        <label>Date<input id="date" type="date" /></label>
+        <label>Subject<input id="subject" /></label>
+      </div>
+      <fieldset class="customer">
+        <legend>Customer</legend>
+        <label>Name<input id="custName" /></label>
+        <label>Email<input id="custEmail" type="email" /></label>
+        <label>Phone<input id="custPhone" /></label>
+      </fieldset>
+    </header>
+
+    <table id="items">
+      <thead>
+        <tr>
+          <th>No</th><th>Goods Type</th><th>Description</th><th>Unit</th>
+          <th>Quan.</th><th>Unit Price USD</th><th>Total USD</th><th>Remark</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+      <tfoot>
+        <tr><td colspan="6">Sub Total (USD)</td><td id="subTotal">0.00</td><td colspan="2"></td></tr>
+        <tr><td colspan="6">GCT (15%)</td><td id="gct">0.00</td><td colspan="2"></td></tr>
+        <tr><td colspan="6"><strong>Total (USD)</strong></td><td id="total"><strong>0.00</strong></td><td colspan="2"></td></tr>
+      </tfoot>
+    </table>
+    <button id="addRow" type="button">+ Add row</button>
+
+    <fieldset class="terms">
+      <legend>Terms</legend>
+      <label>Price Term<input id="priceTerm" value="EPC turnkey prices — equipment supply, installation, and commissioning." /></label>
+      <label>Delivery<input id="delivery" value="30 days ready for delivery after technical clarification and receipt of written order and payment." /></label>
+      <label>Terms of Payment<input id="payment" value="50% advance payment by T/T, 50% balance paid before shipment." /></label>
+      <label>Warranty<input id="warranty" value="Battery guaranteed for 60 months from date of delivery. Excludes damage from improper installation or use." /></label>
+      <label>Offer validity<input id="validity" value="This offer is valid for 15 days from the quotation date." /></label>
+    </fieldset>
+
+    <div class="actions">
+      <button id="createBtn" type="button">Create in Zoho</button>
+      <p id="result" class="result" hidden></p>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
