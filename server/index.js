@@ -24,11 +24,20 @@ function createApp(deps) {
   app.use(cookieParser(deps.sessionSecret));
   const createEstimateImpl = deps.createEstimateImpl || createEstimate;
 
+  // Open mode: when no passcode is configured, the login gate is disabled and
+  // /api/quote is reachable without a session. Set QUOTE_PASSCODE to re-enable.
+  const authRequired = Boolean(deps.passcode);
+  const gate = authRequired ? requireSession : (req, res, next) => next();
+
   app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+  app.get('/api/config', (req, res) => res.json({ authRequired }));
+
   app.post('/api/login', (req, res) => {
-    const ok = checkPasscode((req.body && req.body.passcode) || '', deps.passcode);
-    if (!ok) return res.status(401).json({ error: 'Invalid passcode' });
+    if (authRequired) {
+      const ok = checkPasscode((req.body && req.body.passcode) || '', deps.passcode);
+      if (!ok) return res.status(401).json({ error: 'Invalid passcode' });
+    }
     res.cookie('session', 'ok', {
       httpOnly: true, sameSite: 'lax', signed: true,
       secure: process.env.NODE_ENV === 'production',
@@ -37,7 +46,7 @@ function createApp(deps) {
     res.json({ ok: true });
   });
 
-  app.post('/api/quote', requireSession, async (req, res) => {
+  app.post('/api/quote', gate, async (req, res) => {
     const details = validateQuote(req.body);
     if (details) return res.status(400).json({ error: 'Validation failed', details });
 

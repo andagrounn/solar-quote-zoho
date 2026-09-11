@@ -62,6 +62,22 @@ test('quote validation rejects empty line items', async () => {
   expect(res.body.details).toHaveProperty('lineItems');
 });
 
+test('config reports authRequired true when a passcode is set', async () => {
+  const res = await request(createApp(makeDeps())).get('/api/config');
+  expect(res.body).toEqual({ authRequired: true });
+});
+
+test('open mode: no passcode -> config false and quote works without login', async () => {
+  const app = createApp(makeDeps({ passcode: '' }));
+  const cfg = await request(app).get('/api/config');
+  expect(cfg.body).toEqual({ authRequired: false });
+
+  // no login call at all
+  const res = await request(app).post('/api/quote').send(validQuote);
+  expect(res.status).toBe(200);
+  expect(res.body).toMatchObject({ ok: true, estimateId: 'E9' });
+});
+
 test('surfaces Zoho errors as 502 with details', async () => {
   const app = createApp(makeDeps({
     createEstimateImpl: async () => {

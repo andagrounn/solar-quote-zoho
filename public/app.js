@@ -11,12 +11,25 @@ async function post(url, body) {
   return { status: res.status, data };
 }
 
+function showForm() {
+  $('login').hidden = true;
+  $('app').hidden = false;
+  if (!$('itemsBody').children.length) addRow();
+}
+
+// On load, skip the login screen entirely when the server runs in open mode.
+(async () => {
+  try {
+    const res = await fetch('/api/config', { credentials: 'same-origin' });
+    const cfg = await res.json();
+    if (cfg && cfg.authRequired === false) showForm();
+  } catch (_) { /* leave login screen up if the probe fails */ }
+})();
+
 $('loginBtn').addEventListener('click', async () => {
   const { status } = await post('/api/login', { passcode: $('passcode').value });
   if (status === 200) {
-    $('login').hidden = true;
-    $('app').hidden = false;
-    addRow();
+    showForm();
   } else {
     $('loginError').hidden = false;
     $('loginError').textContent = 'Invalid passcode';
