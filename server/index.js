@@ -57,9 +57,10 @@ function createApp(deps) {
   return app;
 }
 
-module.exports = { createApp };
-
-if (require.main === module) {
+// Wire a real, env-configured app (used by `npm start` and the Passenger
+// entry point in ../app.js). Kept separate from createApp so tests can inject
+// deps without touching process.env.
+function buildAppFromEnv() {
   const region = process.env.ZOHO_REGION || 'com';
   const zohoClient = createZohoClient({
     region,
@@ -68,7 +69,7 @@ if (require.main === module) {
     refreshToken: process.env.ZOHO_REFRESH_TOKEN,
     orgId: process.env.ZOHO_ORG_ID,
   });
-  const app = createApp({
+  return createApp({
     passcode: process.env.QUOTE_PASSCODE,
     sessionSecret: process.env.SESSION_SECRET,
     currency: process.env.ZOHO_CURRENCY || 'USD',
@@ -77,6 +78,12 @@ if (require.main === module) {
     zohoClient,
     estimateUrlBase: `https://books.zoho.${region}/app#/estimates`,
   });
+}
+
+module.exports = { createApp, buildAppFromEnv };
+
+if (require.main === module) {
+  const app = buildAppFromEnv();
   const port = process.env.PORT || 3000;
   app.listen(port, () => console.log(`solar-quote-zoho on :${port}`));
 }
