@@ -7,6 +7,10 @@ input { width: 100%; padding: .45rem; border: 1px solid #cbd2d9; border-radius: 
 button { background: #0b5cad; color: #fff; border: 0; padding: .55rem 1rem; border-radius: 4px; cursor: pointer; font-size: .9rem; }
 button:hover { background: #094a8c; }
 main { max-width: 1100px; margin: 0 auto; background: #fff; padding: 1.5rem; border-radius: 8px; }
+.app-brand { text-align: center; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e1e5ea; }
+.app-brand .brand-logo { max-height: 110px; }
+.card .brand-logo { display: block; max-height: 90px; max-width: 100%; margin: 0 auto 1rem; }
+.brand-logo { width: auto; }
 .quote-head { display: flex; gap: 2rem; flex-wrap: wrap; }
 .head-fields { flex: 1; min-width: 260px; }
 .customer { flex: 1; min-width: 260px; border: 1px solid #e1e5ea; border-radius: 6px; }
