@@ -4,6 +4,7 @@ body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 1.5rem; co
 h1 { font-size: 1.25rem; }
 label { display: block; margin: .5rem 0; font-size: .85rem; }
 input { width: 100%; padding: .45rem; border: 1px solid #cbd2d9; border-radius: 4px; font-size: .9rem; }
+input[readonly] { background: #eef1f5; color: #6b7280; cursor: not-allowed; }
 button { background: #0b5cad; color: #fff; border: 0; padding: .55rem 1rem; border-radius: 4px; cursor: pointer; font-size: .9rem; }
 button:hover { background: #094a8c; }
 main { max-width: 1100px; margin: 0 auto; background: #fff; padding: 1.5rem; border-radius: 8px; }

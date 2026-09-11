@@ -96,7 +96,7 @@ $('createBtn').addEventListener('click', async () => {
     remark: tr.querySelector('.remark').value,
   }));
   const payload = {
-    quotationNo: $('quotationNo').value,
+    quotationNo: '', // always blank -> Zoho auto-numbers the estimate
     inquiryNo: $('inquiryNo').value,
     date: $('date').value,
     subject: $('subject').value,
@@ -112,6 +112,7 @@ $('createBtn').addEventListener('click', async () => {
   result.textContent = 'Creating…';
   const { status, data } = await post('/api/quote', payload);
   if (status === 200) {
+    $('quotationNo').value = data.estimateNumber || ''; // show Zoho's assigned number
     result.textContent = `Created estimate ${data.estimateNumber}. `;
     if (typeof data.url === 'string' && data.url.startsWith('https://')) {
       const a = document.createElement('a');
