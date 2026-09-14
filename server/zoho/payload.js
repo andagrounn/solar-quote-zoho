@@ -16,14 +16,18 @@ function buildEstimatePayload(form, config) {
     date: form.date,
     subject: form.subject || '',
     notes: assembleNotes(form.terms || {}),
-    line_items: (form.lineItems || []).map((item) => ({
-      name: item.goodsType || '',
-      description: item.description || '',
-      unit: item.unit || '',
-      rate: Number(item.unitPrice) || 0,
-      quantity: Number(item.quantity) || 0,
-      tax_id: config.gctTaxId,
-    })),
+    line_items: (form.lineItems || []).map((item) => {
+      const line = {
+        name: item.goodsType || '',
+        description: item.description || '',
+        unit: item.unit || '',
+        rate: Number(item.unitPrice) || 0,
+        quantity: Number(item.quantity) || 0,
+        tax_id: config.gctTaxId,
+      };
+      if (item.itemId) line.item_id = item.itemId; // link to the Zoho item when picked
+      return line;
+    }),
   };
   if (form.quotationNo) {
     payload.estimate_number = form.quotationNo;

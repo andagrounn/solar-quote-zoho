@@ -11,9 +11,27 @@ async function post(url, body) {
   return { status: res.status, data };
 }
 
+const itemsByName = new Map();
+async function loadItems() {
+  try {
+    const res = await fetch('/api/items', { credentials: 'same-origin' });
+    if (!res.ok) return;
+    const { items } = await res.json();
+    const dl = $('itemsList');
+    dl.innerHTML = '';
+    (items || []).forEach((it) => {
+      itemsByName.set(it.name, it);
+      const opt = document.createElement('option');
+      opt.value = it.name;
+      dl.appendChild(opt);
+    });
+  } catch (_) { /* items are optional; freeform entry still works */ }
+}
+
 function showForm() {
   $('login').hidden = true;
   $('app').hidden = false;
+  loadItems();
   if (!$('itemsBody').children.length) addRow();
 }
 
@@ -60,7 +78,7 @@ function addRow() {
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td>${n}</td>
-    <td><input class="goods" /></td>
+    <td><input class="goods" list="itemsList" placeholder="Type to search items…" /></td>
     <td><input class="desc" /></td>
     <td><input class="unit" /></td>
     <td><input class="q" type="number" min="0" step="any" /></td>
@@ -71,6 +89,19 @@ function addRow() {
   tb.appendChild(tr);
   tr.querySelector('.q').addEventListener('input', recalc);
   tr.querySelector('.p').addEventListener('input', recalc);
+  const goods = tr.querySelector('.goods');
+  goods.addEventListener('input', () => {
+    const it = itemsByName.get(goods.value);
+    if (it) {
+      tr.dataset.itemId = it.id;
+      if (it.description) tr.querySelector('.desc').value = it.description;
+      if (it.unit) tr.querySelector('.unit').value = it.unit;
+      tr.querySelector('.p').value = it.rate;
+      recalc();
+    } else {
+      delete tr.dataset.itemId; // freeform / edited -> not a linked item
+    }
+  });
   tr.querySelector('.row-del').addEventListener('click', () => {
     tr.remove();
     renumber();
@@ -94,6 +125,7 @@ $('createBtn').addEventListener('click', async () => {
     quantity: Number(tr.querySelector('.q').value) || 0,
     unitPrice: Number(tr.querySelector('.p').value) || 0,
     remark: tr.querySelector('.remark').value,
+    itemId: tr.dataset.itemId || undefined,
   }));
   const payload = {
     quotationNo: '', // always blank -> Zoho auto-numbers the estimate

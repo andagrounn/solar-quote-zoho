@@ -59,4 +59,17 @@ describe('buildEstimatePayload', () => {
     const p = buildEstimatePayload({ ...form, quotationNo: '' }, { customerId: 'C', gctTaxId: 'T' });
     expect(p).not.toHaveProperty('estimate_number');
   });
+
+  test('attaches item_id when a line is linked to a Zoho item, omits it otherwise', () => {
+    const withItem = {
+      ...form,
+      lineItems: [
+        { goodsType: 'Panel', unit: 'pcs', quantity: 2, unitPrice: 35, itemId: 'I1' },
+        { goodsType: 'Custom labour', unit: 'batch', quantity: 1, unitPrice: 100 },
+      ],
+    };
+    const p = buildEstimatePayload(withItem, { customerId: 'C', gctTaxId: 'T' });
+    expect(p.line_items[0].item_id).toBe('I1');
+    expect(p.line_items[1]).not.toHaveProperty('item_id');
+  });
 });

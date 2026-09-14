@@ -12,6 +12,7 @@ function makeDeps(overrides = {}) {
     estimateUrlBase: 'https://books.zoho.com/app#/estimates',
     zohoClient: {},
     createEstimateImpl: async () => ({ estimateId: 'E9', estimateNumber: 'EST-9' }),
+    listItemsImpl: async () => ([{ id: 'I1', name: 'Panel', description: 'd', rate: 35, unit: 'pcs' }]),
     ...overrides,
   };
 }
@@ -60,6 +61,20 @@ test('quote validation rejects empty line items', async () => {
   const res = await agent.post('/api/quote').send({ ...validQuote, lineItems: [] });
   expect(res.status).toBe(400);
   expect(res.body.details).toHaveProperty('lineItems');
+});
+
+test('items requires auth', async () => {
+  const res = await request(createApp(makeDeps())).get('/api/items');
+  expect(res.status).toBe(401);
+});
+
+test('items returns the list after login', async () => {
+  const app = createApp(makeDeps());
+  const agent = request.agent(app);
+  await agent.post('/api/login').send({ passcode: 'secret' });
+  const res = await agent.get('/api/items');
+  expect(res.status).toBe(200);
+  expect(res.body.items[0]).toMatchObject({ id: 'I1', name: 'Panel', rate: 35 });
 });
 
 test('config reports authRequired true when a passcode is set', async () => {

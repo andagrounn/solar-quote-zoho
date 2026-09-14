@@ -5,6 +5,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const { checkPasscode, requireSession } = require('./auth');
 const { createEstimate } = require('./zoho/estimates');
+const { listItems } = require('./zoho/items');
 const { createZohoClient } = require('./zoho/client');
 
 function validateQuote(body) {
@@ -23,6 +24,7 @@ function createApp(deps) {
   app.use(express.json({ limit: '256kb' }));
   app.use(cookieParser(deps.sessionSecret));
   const createEstimateImpl = deps.createEstimateImpl || createEstimate;
+  const listItemsImpl = deps.listItemsImpl || listItems;
 
   // Open mode: when no passcode is configured, the login gate is disabled and
   // /api/quote is reachable without a session. Set QUOTE_PASSCODE to re-enable.
@@ -44,6 +46,15 @@ function createApp(deps) {
       maxAge: 12 * 60 * 60 * 1000,
     });
     res.json({ ok: true });
+  });
+
+  app.get('/api/items', gate, async (req, res) => {
+    try {
+      const items = await listItemsImpl(deps.zohoClient);
+      res.json({ items });
+    } catch (err) {
+      res.status(502).json({ error: 'Could not load items', details: err.details || err.message });
+    }
   });
 
   app.post('/api/quote', gate, async (req, res) => {
